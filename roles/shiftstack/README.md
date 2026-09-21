@@ -23,6 +23,9 @@ Role for triggering Openshift on Openstack QA automation (installation and tests
 * `cifmw_shiftstack_qa_repo`: (*string*) The repository containing the Openshift on Openstack QA automation. Defaults to `https://review.gerrithub.io/shiftstack/shiftstack-qa`.
 * `cifmw_shiftstack_run_playbook`: (*string*) The playbook to be run from the `cifmw_shiftstack_qa_repo` repository. Defaults to `ocp_testing.yaml`.
 * `cifmw_shiftstack_stages_override`: (*list*) Optional stage list passed as ansible-navigator `--extra-vars` to override the stages from the testconfig. An empty list leaves the testconfig stages unchanged. Defaults to `[]`.
+* `cifmw_shiftstack_bootstrap_oc_client`: (*boolean*) When `true` (default) and `cifmw_shiftstack_stages_override` is non-empty without `prepare`, install a stable `oc`/`kubectl` into the shiftstackclient pod after it is recreated. Needed because the role always recreates the pod and QA only installs `oc` during `prepare`. Set to `false` to disable. Defaults to `true`.
+* `cifmw_shiftstack_oc_bootstrap_dir`: (*string*) Directory inside the pod for the bootstrapped client binaries. Defaults to `/home/cloud-admin/bootstrap-oc`.
+* `cifmw_shiftstack_oc_bootstrap_url`: (*string*) URL of the `openshift-client-linux.tar.gz` used for the bootstrap. Defaults to the stable client on `mirror.openshift.com`.
 * `cifmw_shiftstack_sc`: (*string*) The storage class to be used for PVC for the shiftstackclient pod. Defaults to `local-storage`.
 * `cifmw_shiftstack_shiftstackclient_artifacts_dir`: (*string*) The artifacts directory path for the shiftstackclient pod. Defaults to `/home/cloud-admin/artifacts`.
 * `cifmw_shiftstack_shiftstackclient_incluster_kubeconfig_dir`: (*string*) The directory path in shiftstackclient pod the will hold the RHOSO kubeconfig. Defaults to `/home/cloud-admin/incluster-kubeconfig`.

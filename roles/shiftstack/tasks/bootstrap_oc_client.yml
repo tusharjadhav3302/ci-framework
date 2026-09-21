@@ -1,0 +1,48 @@
+---
+# Copyright Red Hat, Inc.
+# All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# Minimal client bootstrap for phased Pipeline B (and similar) runs that
+# recreate the shiftstackclient pod but skip the QA "prepare" stage.
+# prepare is what normally installs /usr/local/bin/oc via
+# tools_get_openshift_release; without it, verification fails with
+# "oc: command not found". This mirrors the cold-start bootstrap path in
+# shiftstack-qa get_openshift_release_binaries.yml (stable client from the
+# OpenShift mirror), not the full prepare role (project/clouds/AZ/etc.).
+
+- name: Bootstrap oc client in the shiftstackclient pod
+  vars:
+    namespace: "{{ cifmw_shiftstack_client_pod_namespace }}"
+    pod_name: "{{ cifmw_shiftstack_client_pod_name }}"
+    command: >-
+      set -euo pipefail
+      if command -v oc >/dev/null 2>&1; then
+        echo "oc already available: $(command -v oc)";
+        oc version --client || true;
+        exit 0;
+      fi;
+      BOOT_DIR={{ cifmw_shiftstack_oc_bootstrap_dir | quote }};
+      MIRROR_URL={{ cifmw_shiftstack_oc_bootstrap_url | quote }};
+      mkdir -p "${BOOT_DIR}";
+      echo "Downloading oc client from ${MIRROR_URL}";
+      curl -fsSL "${MIRROR_URL}" -o /tmp/openshift-client-linux.tar.gz;
+      tar -C "${BOOT_DIR}" -xzf /tmp/openshift-client-linux.tar.gz oc kubectl;
+      rm -f /tmp/openshift-client-linux.tar.gz;
+      sudo ln -sfn "${BOOT_DIR}/oc" /usr/local/bin/oc;
+      sudo ln -sfn "${BOOT_DIR}/kubectl" /usr/bin/kubectl;
+      command -v oc;
+      oc version --client
+    log_file_name: "bootstrap_oc_client.log"
+  ansible.builtin.include_tasks: exec_command_in_pod.yml

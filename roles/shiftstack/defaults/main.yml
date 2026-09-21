@@ -54,3 +54,9 @@ cifmw_shiftstack_extra_vars_mount_path: "/home/cloud-admin/extra-vars"
 # Optional: name of a Kubernetes Secret containing SSH keys to mount into the pod
 # cifmw_shiftstack_trex_keypair_secret: "trex-keypair"
 cifmw_shiftstack_stages_override: []
+# When stages_override is set and omits prepare, bootstrap a stable oc client
+# into the freshly recreated shiftstackclient pod (prepare normally does this).
+cifmw_shiftstack_bootstrap_oc_client: true
+cifmw_shiftstack_oc_bootstrap_dir: "/home/cloud-admin/bootstrap-oc"
+cifmw_shiftstack_oc_bootstrap_url: >-
+  https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
